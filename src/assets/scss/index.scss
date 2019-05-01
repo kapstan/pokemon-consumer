@@ -1,0 +1,27 @@
+$icon-font-path: "~bootstrap/assets/fonts/bootstrap/";
+@import "~bootstrap/scss/bootstrap";
+@import "~@fortawesome/fontawesome-free/scss/fontawesome";
+@import "partials/animations";
+@import "partials/mixins";
+
+#pokemon-list {
+    list-style: none;
+    padding-left: 0;
+
+    .pokemon {
+        margin-bottom: 1em;
+        padding-left: 0;
+        padding-right: 0;
+
+        .card-text {
+            margin-bottom: 3.5rem;
+        }
+
+        .favorite-indicator-container {
+            &:hover {
+                @include animation( 'heartbeat 1s infinite' );
+                cursor: pointer;
+            }
+        }
+    }
+}

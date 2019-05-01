@@ -1,6 +1,7 @@
 import React from 'react';
 import Pokemon from './lib/Components/Pokemon';
 import { DEFAULT_API_ENDPOINT, DEFAULT_API_ACTION, CACHE_DEFAULT_KEY } from './lib/Constants';
+import Util from './lib/Util';
 
 export default class App extends React.Component {
    constructor()
@@ -41,21 +42,83 @@ export default class App extends React.Component {
 
    renderPokemon( index )
    {
-       return <Pokemon key={index} value={this.state.pokemonList[index]}></Pokemon>
+       return <Pokemon key={index} value={this.state.pokemonList[index]} onFavoriteClick={ ( e ) => this.onFavoriteClick( e, index )}></Pokemon>
+   }
+
+   onFavoriteClick( event, index )
+   {
+       event.nativeEvent.stopImmediatePropagation();
+       event.stopPropagation();
+
+       console.log( event.nativeEvent.target );
+       
+       this.handleFavoriteClick( index );
+   }
+
+   handleFavoriteClick( index )
+   {
+        // update pokemon at this.state.pokemonList[ index ]
+        // to include a key indicating their status
+        this.updateFavoriteStatus( index );
+   }
+
+   updateFavoriteStatus( index )
+   {
+        let pokemons = this.state.pokemonList,
+            pokemon = pokemons[ index ],
+            favorites = Util.getFavorites(),
+            status = false;
+
+        ++index;
+
+        // check if pokemon has already been marked
+        // as a favorite
+        if( Util.isFavorite( index ) ) {
+            // it's already a favorite, so we
+            // need to remove it from the list
+            favorites = favorites.split( ',' );
+            favorites.splice( favorites.indexOf( index.toString() ), 1 );
+        } else {
+            // make sure list isn't empty
+            if( favorites === null ) {
+                // list is empty, just add this index
+                // and store it
+                favorites = new Array(0);
+                favorites.push( index.toString() );
+                status = true;
+            } else {
+                favorites = favorites.split( ',' );
+                favorites.push( index.toString() );
+                status = true;
+            }
+
+            pokemon.isFavorite = true;
+            pokemons[ index ] = pokemon;
+            this.setState( {
+                pokemonList: pokemons
+            } );
+        }
+
+        // update CSS class for favorites indicator
+
+
+        favorites = favorites.join( ',' );
+        Util.storeUpdatedFavoritesList( favorites );
    }
 
    render()
    {
-        return (
+        return (            
             <div id="pokemon-consumer" className="container">
-                <div className="row">
-                    <ul id="pokemon-list" className="list-inline">
-                        { this.state.pokemonList.map( ( p, index ) => {
-                            return this.renderPokemon( index );
-                        } ) }                     
-                    </ul>
-                </div>
+                <header id="pokemon-list-header" className="row">
+                    <h5 className="display-4 ml-auto mr-auto">Pok&eacute;mon API Consumer</h5>
+                </header>
+                <ul id="pokemon-list" className="row">
+                    { this.state.pokemonList.map( ( p, index ) => {
+                        return this.renderPokemon( index );
+                    } ) }                     
+                </ul>
             </div>
-        )
+        );
    }
 }
