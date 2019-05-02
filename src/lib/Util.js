@@ -1,3 +1,5 @@
+import { FAVORITES_CACHE_KEY } from './Constants';
+
 export default class Util {
     static getInstance()
     {
@@ -14,25 +16,37 @@ export default class Util {
         return fetch( url, params );
     }
 
-    static isFavorite( index )
+    static async isFavorite( index )
     {
-        let favorites = Util.getFavorites();
-        if( favorites === null ) {
-            return false;
-        }
+        let favorites = await Util.getFavorites();
 
-        favorites = favorites.split( ',' );
-        return favorites.includes( index.toString() );
+        return new Promise( ( resolve ) => {
+            favorites.split( ',' );
+            resolve( favorites.includes( index ) );
+        } );
+
+        // favorites.split( ',' );
+        // return favorites.includes( index );
+
+
+
+
+        // if( favorites === null ) {
+        //     return false;
+        // }
+
+        // favorites = favorites.split( ',' );
+        // return favorites.includes( index.toString() );
     }
 
-    static getFavorites()
+    static async getFavorites()
     {
-        return localStorage.getItem( 'favorite_pokemons' );
+        return localStorage.getItem( FAVORITES_CACHE_KEY );
     }
 
     static storeUpdatedFavoritesList( favorites )
     {
-        localStorage.setItem( 'favorite_pokemons', favorites );
+        localStorage.setItem( FAVORITES_CACHE_KEY, favorites );
     }
 
     static capitalize( word )

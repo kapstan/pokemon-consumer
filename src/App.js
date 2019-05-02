@@ -31,9 +31,17 @@ export default class App extends React.Component {
        } )
        .then( response => response.json() )
        .then( responseJson => {
-           this.setState( {
-               pokemonList: responseJson.results
-           } );
+           let pokemons = responseJson.results;
+
+           // update favorites status for each
+           // pokemon we retrieved from the API
+           for( let i = 0; i < pokemons.length; i++ ) {
+                pokemons[ i ].isFavorite = Util.isFavorite( i );
+           }
+
+            this.setState( {
+                pokemonList: pokemons
+            } );
        } )
        .catch( _ => {
            return caches.match( requestUrl );
@@ -49,9 +57,6 @@ export default class App extends React.Component {
    {
        event.nativeEvent.stopImmediatePropagation();
        event.stopPropagation();
-
-       console.log( event.nativeEvent.target );
-       
        this.handleFavoriteClick( index );
    }
 
@@ -59,15 +64,9 @@ export default class App extends React.Component {
    {
         // update pokemon at this.state.pokemonList[ index ]
         // to include a key indicating their status
-        this.updateFavoriteStatus( index );
-   }
-
-   updateFavoriteStatus( index )
-   {
         let pokemons = this.state.pokemonList,
             pokemon = pokemons[ index ],
-            favorites = Util.getFavorites(),
-            status = false;
+            favorites = Util.getFavorites();
 
         ++index;
 
@@ -85,22 +84,13 @@ export default class App extends React.Component {
                 // and store it
                 favorites = new Array(0);
                 favorites.push( index.toString() );
-                status = true;
             } else {
                 favorites = favorites.split( ',' );
                 favorites.push( index.toString() );
-                status = true;
             }
-
-            pokemon.isFavorite = true;
-            pokemons[ index ] = pokemon;
-            this.setState( {
-                pokemonList: pokemons
-            } );
         }
 
         // update CSS class for favorites indicator
-
 
         favorites = favorites.join( ',' );
         Util.storeUpdatedFavoritesList( favorites );
