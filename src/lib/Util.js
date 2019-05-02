@@ -11,6 +11,11 @@ export default class Util {
         return this;
     }
 
+    static isArray( obj )
+    {
+        return Object.prototype.toString.call( obj ) === '[object Array ]';
+    }
+
     static async request( url, params )
     {
         return fetch( url, params );
@@ -18,28 +23,44 @@ export default class Util {
 
     static async isFavorite( index )
     {
-        let favorites = await Util.getFavorites();
+        let favorites = Util.getFavorites();
 
-        return new Promise( ( resolve ) => {
-            favorites.split( ',' );
+        return new Promise( ( resolve, reject ) => {
+            if( !favorites.length ) {
+                resolve( false );
+            }
+
             resolve( favorites.includes( index ) );
         } );
-
-        // favorites.split( ',' );
-        // return favorites.includes( index );
-
-
-
-
-        // if( favorites === null ) {
-        //     return false;
-        // }
-
-        // favorites = favorites.split( ',' );
-        // return favorites.includes( index.toString() );
     }
 
-    static async getFavorites()
+    static initList( id )
+    {
+        let favorites = [ id ];
+        favorites = favorites.join( ',' );
+        Util.storeUpdatedFavoritesList( favorites );        
+    }
+
+    static addFavorite( id )
+    {
+        let favorites = Util.getFavorites();
+        favorites = favorites.split( ',' );
+        favorites.push( id );
+
+        favorites = favorites.join( ',' );
+        Util.storeUpdatedFavoritesList( favorites );
+    }
+
+    static removeFavorite( id )
+    {
+        let favorites = Util.getFavorites();
+        favorites = favorites.split( ',' );
+        favorites.splice( favorites.indexOf( id ), 1 );
+
+        return favorites;
+    }
+
+    static getFavorites()
     {
         return localStorage.getItem( FAVORITES_CACHE_KEY );
     }

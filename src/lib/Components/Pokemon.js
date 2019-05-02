@@ -57,13 +57,45 @@ export default class Pokemon extends React.Component {
         } );
     }
 
+    onFavoriteClick( e )
+    {
+        e.nativeEvent.stopImmediatePropagation();
+        e.stopPropagation();
+        this.handleFavoriteClick();
+    }
+
+    async handleFavoriteClick()
+    {
+        // check if pokemon is already favorite
+        // if favorite, remove from list
+        // if not, add to list
+        // if list empty, add to list
+        let favorites = Util.getFavorites(),
+            isFavorite = false,
+            method = '';
+
+        // check base-case
+        if( favorites === null ) {
+            return Util.initFavorites( this.state.id );
+        }
+
+        isFavorite = await Util.isFavorite( this.state.id );
+        method = ( isFavorite ) ? 'removeFavorite' : 'addFavorite';       
+
+        // add or remove the favorite from the list
+        Util[ method ]( this.state.id );
+
+        // update component state
+        this.setState( { isFavorite: !isFavorite } );
+    }
+
     buildContainerClassName()
     {
         let classes = [ 'favorite-indicator-container', 'd-block', 'ml-auto', 'mr-auto', 'text-center' ];
 
         if( this.state.isFavorite ) {
             classes.push( 'is-favorite' );
-        }        
+        }
 
         return classes.join( ' ' );
     }
@@ -90,7 +122,7 @@ export default class Pokemon extends React.Component {
                     <img className="card-img-top" src={this.state.image} alt={capitalizedName}></img>
                     <div className="card-body">
                         <h5 className="card-title text-center">{capitalizedName}</h5>
-                        <span className={containerCssClass} onClick={this.props.onFavoriteClick}>
+                        <span className={containerCssClass} onClick={ ( e ) => this.onFavoriteClick( e )}>
                             <i className={favoriteIconClass}></i>
                         </span>
                     </div>
