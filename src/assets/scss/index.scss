@@ -4,17 +4,28 @@ $icon-font-path: "~bootstrap/assets/fonts/bootstrap/";
 @import "partials/animations";
 @import "partials/mixins";
 
+.navbar {
+    &.bg-light {
+        background-color: #fff!important;
+    }
+}
+
 #pokemon-list {
     list-style: none;
-    padding-left: 0;
+    padding-left: 10px;
 
     .pokemon {
-        margin-bottom: 1em;
-        padding-left: 0;
-        padding-right: 0;
+        position: relative;
+        float: left;
+        width: 265px;
+        height: 350px;
+        margin: 5px;
+        color: #262524;
+        margin-bottom: 1rem;
 
-        .card-text {
-            margin-bottom: 3.5rem;
+        & > * {
+            margin: 0;
+            padding: 0;
         }
 
         .favorite-indicator-container {
@@ -23,9 +34,15 @@ $icon-font-path: "~bootstrap/assets/fonts/bootstrap/";
             }
 
             &:hover {
-                @include animation( 'heartbeat 1s infinite' );
+                @include animation('heartbeat 1s infinite');
                 cursor: pointer;
             }
         }
+    }
+
+    &:after {
+        content: '';
+        display: block;
+        clear: both;        
     }
 }

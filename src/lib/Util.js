@@ -1,4 +1,4 @@
-import { FAVORITES_CACHE_KEY } from './Constants';
+import { FAVORITES_CACHE_KEY, SORT_STATE_KEY } from './Constants';
 
 export default class Util {
     static getInstance()
@@ -13,7 +13,7 @@ export default class Util {
 
     static isArray( obj )
     {
-        return Object.prototype.toString.call( obj ) === '[object Array ]';
+        return Object.prototype.toString.call( obj ) === '[object Array]';
     }
 
     static async request( url, params )
@@ -24,9 +24,11 @@ export default class Util {
     static async isFavorite( index )
     {
         let favorites = Util.getFavorites();
-
-        return new Promise( ( resolve, reject ) => {
-            if( !favorites.length ) {
+         
+        return new Promise( ( resolve ) => {
+            // nothing in local storage stored
+            // as a favorite under FAVORITES_CACHE_KEY            
+            if( favorites === null) {
                 resolve( false );
             }
 
@@ -34,11 +36,11 @@ export default class Util {
         } );
     }
 
-    static initList( id )
+    static initFavorites( id )
     {
         let favorites = [ id ];
         favorites = favorites.join( ',' );
-        Util.storeUpdatedFavoritesList( favorites );        
+        Util.persistFavoritesList( favorites );        
     }
 
     static addFavorite( id )
@@ -48,16 +50,17 @@ export default class Util {
         favorites.push( id );
 
         favorites = favorites.join( ',' );
-        Util.storeUpdatedFavoritesList( favorites );
+        return Util.persistFavoritesList( favorites );
     }
 
     static removeFavorite( id )
     {
         let favorites = Util.getFavorites();
-        favorites = favorites.split( ',' );
-        favorites.splice( favorites.indexOf( id ), 1 );
 
-        return favorites;
+        favorites = favorites.split( ',' );
+        favorites.splice( favorites.indexOf( id.toString() ), 1 );
+        favorites = favorites.join( ',' );
+        return Util.persistFavoritesList( favorites );
     }
 
     static getFavorites()
@@ -65,9 +68,18 @@ export default class Util {
         return localStorage.getItem( FAVORITES_CACHE_KEY );
     }
 
-    static storeUpdatedFavoritesList( favorites )
+    static persistFavoritesList( favorites )
     {
-        localStorage.setItem( FAVORITES_CACHE_KEY, favorites );
+        return localStorage.setItem( FAVORITES_CACHE_KEY, favorites );
+    }
+
+    static sortListBy( list, property, sortDirection )
+    {
+        let comparator = ( sortDirection === 'asc' )
+            ? ( a, b ) => a[ property ].localeCompare( b[ property ] )
+            : ( a, b ) => b[ property ].localeCompare( a[ property ] );
+
+        return list.sort( comparator );
     }
 
     static capitalize( word )

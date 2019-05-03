@@ -59,8 +59,8 @@ export default class Pokemon extends React.Component {
 
     onFavoriteClick( e )
     {
-        e.nativeEvent.stopImmediatePropagation();
-        e.stopPropagation();
+        // e.nativeEvent.stopImmediatePropagation();
+        // e.stopPropagation();
         this.handleFavoriteClick();
     }
 
@@ -71,7 +71,6 @@ export default class Pokemon extends React.Component {
         // if not, add to list
         // if list empty, add to list
         let favorites = Util.getFavorites(),
-            isFavorite = false,
             method = '';
 
         // check base-case
@@ -79,14 +78,16 @@ export default class Pokemon extends React.Component {
             return Util.initFavorites( this.state.id );
         }
 
-        isFavorite = await Util.isFavorite( this.state.id );
-        method = ( isFavorite ) ? 'removeFavorite' : 'addFavorite';       
+        Util.isFavorite( this.state.id )
+        .then( status => {
+            method = ( status ) ? 'removeFavorite' : 'addFavorite';
 
-        // add or remove the favorite from the list
-        Util[ method ]( this.state.id );
+            Util[ method ]( this.state.id );
 
-        // update component state
-        this.setState( { isFavorite: !isFavorite } );
+            this.setState( {
+                isFavorite: ( method === 'removeFavorite' ) ? false : true
+            } );
+        } );
     }
 
     buildContainerClassName()
@@ -117,12 +118,12 @@ export default class Pokemon extends React.Component {
             favoriteIconClass = this.buildIconClassName();
 
         return (            
-            <li className="pokemon col-md-3 col-sm-12 mr-auto mb-2">
+            <li className="pokemon" data-pokemon-id={this.state.id}>
                 <div className="card w-90">
                     <img className="card-img-top" src={this.state.image} alt={capitalizedName}></img>
                     <div className="card-body">
-                        <h5 className="card-title text-center">{capitalizedName}</h5>
-                        <span className={containerCssClass} onClick={ ( e ) => this.onFavoriteClick( e )}>
+                        <h5 className="card-title text-center pokemon-name">{capitalizedName}</h5>
+                        <span className={containerCssClass} onClick={ ( e ) => this.onFavoriteClick( e ) }>
                             <i className={favoriteIconClass}></i>
                         </span>
                     </div>
